@@ -1,0 +1,8 @@
+{
+  "ecmaVersion": 6,
+  "libs": [],
+  "plugins": {
+    "app/js/lib/three.min": {},
+    "app/js/require": {}
+  }
+}
