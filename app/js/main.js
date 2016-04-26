@@ -9,8 +9,8 @@ requirejs.config({
   shim: {
     // load deps for modules w/o AMD
     "lib/threeOrbitControls": {
-      deps: ["lib/three.min"],
-      exports: "THREE.OrbitControls"
+      deps: ["lib/three.min"]
+      //exports:"THREE.OrbitControls"
     }
   }
 });

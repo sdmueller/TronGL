@@ -6,8 +6,10 @@ define(["app/cameraHelper",
         "app/props",
         "lib/keyboard",
         "lib/three.min"], function(cameraHelper, props, keyboard, three) {
-  var renderer, scene, camera, cube, orbitControls;
+  var renderer, scene, camera, cube, keyPressed, delta, path;
+  var clock = new THREE.Clock();
   var camSpeed = 1;
+  var isFreeCam = true;
 
   function setup() {
     createScene();
@@ -32,8 +34,7 @@ define(["app/cameraHelper",
     camera = new cameraHelper.Camera("mainCam");
     camera.setViewport(viewSize, WIDTH, HEIGHT, near, far);
     camera.createCameraPersp(45);
-    camera.setPosition(0, 0, 10);
-    camera.attachOrbitControls(renderer.domElement, 0);
+    camera.setPosition(0, 0, -50);
 
     // create scene
     scene = new THREE.Scene();
@@ -41,36 +42,55 @@ define(["app/cameraHelper",
     // start renderer
     renderer.setSize(WIDTH, HEIGHT);
 
-    // add small cube
-    backgroundCube = new props.Cube(5, 5);
-    backgroundCube.isWireframe(true);
-    scene.add(backgroundCube.mesh);
+    var floor = new props.Floor(50, 50);
+    floor.isWireframe(true);
+    scene.add(floor.mesh);
+
+    // add cube representing bike
+    bikeCube = new props.Bike(0.5, 3, 1);
+    scene.add(bikeCube.mesh);
+
+    // add path object
+    path = new props.Path(bikeCube);
+
   }
 
   function draw() {
     // loop draw() function
     requestAnimationFrame(draw);
 
+    delta = clock.getDelta();
+
     handleInput();
+
+    updateCamera();
+
     // draw THREE.JS scene
     renderer.render(scene, camera.cam);
   }
 
   function handleInput() {
     if(Key.isDown(Key.A)) {
-      camera.moveOnKey("A");
+        bikeCube.rotate("left", delta);
+        path.update();
     }
     if(Key.isDown(Key.D)) {
-      camera.moveOnKey("D");
+        bikeCube.rotate("right", delta);
+        path.update();
     }
     if(Key.isDown(Key.W)) {
-      camera.moveOnKey("W");
+        bikeCube.translate(0, 1, 0);
+        path.update();
     }
     if(Key.isDown(Key.S)) {
-      camera.moveOnKey("S");
+        bikeCube.translate(0, -1, 0);
+        path.update();
     }
 
-    camera.controls.update();
+  }
+
+  function updateCamera() {
+    camera.cam.lookAt(bikeCube.mesh.position);
   }
 
   return {

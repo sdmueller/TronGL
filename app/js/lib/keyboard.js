@@ -8,6 +8,7 @@ var Key = {
   keysPressed: 0,
 
   A: 65,
+  C: 67,
   W: 87,
   D: 68,
   S: 83,

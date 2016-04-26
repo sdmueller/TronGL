@@ -2,8 +2,7 @@
  * @author sdmueller (http://github.com/sdmueller)
  */
 
-define(["lib/three.min",
-        "lib/threeOrbitControls"], function(three, orbit) {
+define(["lib/three.min"], function(three) {
 
   var Camera = function(name) {
     this.name = name;
@@ -54,61 +53,14 @@ define(["lib/three.min",
     this.cam.position.z = z;
   }
 
-  var xOffset = new THREE.Vector3();
-  var yOffset = new THREE.Vector3();
-  Camera.prototype.moveOnKey = function(key) {
-    var lookAtOffset = new THREE.Vector3();
-    var camLocal = this.cam.matrix.elements;
-    var posChange = this.speed * 0.1;
-    switch(key) {
-      case "A":
-        // Get X column
-        xOffset.set(camLocal[0], camLocal[1], camLocal[2]);
-        // add translation on axis
-        xOffset.multiplyScalar(-posChange);
-        // add axisOffset to totalOffset
-        lookAtOffset.add(xOffset);
-        // translate camera
-        this.cam.translateX(-posChange);
-        // apply offset to target (=lookAt from threeOrbitControls)
-        this.controls.target.add(lookAtOffset);
-        break;
-      case "D":
-        xOffset.set(camLocal[0], camLocal[1], camLocal[2]);
-        xOffset.multiplyScalar(posChange);
-        lookAtOffset.add(xOffset);
-        this.cam.translateX(posChange);
-        this.controls.target.add(lookAtOffset);
-        break;
-      case "W":
-        yOffset.set(camLocal[8], camLocal[9], camLocal[10]);
-        yOffset.multiplyScalar(-posChange);
-        lookAtOffset.add(yOffset);
-        this.cam.translateZ(-posChange);
-        this.controls.target.add(lookAtOffset);
-        break;
-      case "S":
-        yOffset.set(camLocal[8], camLocal[9], camLocal[10]);
-        yOffset.multiplyScalar(posChange);
-        lookAtOffset.add(yOffset);
-        this.cam.translateZ(posChange);
-        this.controls.target.add(lookAtOffset);
-        break;
-      default:
-        // Do nothing
-    }
-  }
-
-  Camera.prototype.attachOrbitControls = function(domElement, dampingFactor) {
-    this.controls = new THREE.OrbitControls(this.cam, domElement);
-    //controls.enableKeys = false;
-    if(dampingFactor == 0) {
-      this.controls.enableDamping = false;
-    } else {
-      this.controls.enableDamping = true;
-      this.controls.dampingFactor = dampingFactor;
-    }
-    this.controls.userPanSpeed = 0.05;
+  Camera.prototype.follow = function(objectToFollow) {
+    // TODO make camera follow the object
+    var relativeCameraOffset = new THREE.Vector3(0, 1, 10);
+    var cameraOffset = relativeCameraOffset.applyMatrix4(objectToFollow.mesh.matrixWorld);
+    this.cam.position.x = cameraOffset.x;
+    this.cam.position.y = cameraOffset.y;
+    this.cam.position.z = cameraOffset.z;
+    this.cam.lookAt(objectToFollow.mesh.position);
   }
 
   return {
