@@ -8,6 +8,8 @@ define(["app/cameraHelper",
         "lib/three.min"], function(cameraHelper, props, keyboard, three) {
   var renderer, scene, camera, cube, keyPressed, delta, path;
   var clock = new THREE.Clock();
+  var time = 0;
+  var update = false;
   var camSpeed = 1;
   var isFreeCam = true;
 
@@ -52,7 +54,7 @@ define(["app/cameraHelper",
 
     // add path object
     path = new props.Path(bikeCube);
-
+    scene.add(path.mesh);
   }
 
   function draw() {
@@ -65,27 +67,34 @@ define(["app/cameraHelper",
 
     updateCamera();
 
+    path.mesh.geometry.attributes.position.needsUpdate = true // required after the first render
+
     // draw THREE.JS scene
     renderer.render(scene, camera.cam);
   }
 
   function handleInput() {
+    if(clock.getElapsedTime() - time >= 0.15) {
+      update = true;
+      time = clock.getElapsedTime();
+    }
     if(Key.isDown(Key.A)) {
         bikeCube.rotate("left", delta);
-        path.update();
     }
     if(Key.isDown(Key.D)) {
         bikeCube.rotate("right", delta);
-        path.update();
     }
     if(Key.isDown(Key.W)) {
         bikeCube.translate(0, 1, 0);
-        path.update();
+        if(update)
+          path.update();
     }
     if(Key.isDown(Key.S)) {
         bikeCube.translate(0, -1, 0);
-        path.update();
+        if(update)
+          path.update();
     }
+    update = false;
 
   }
 

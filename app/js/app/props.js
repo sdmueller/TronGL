@@ -61,14 +61,38 @@ Floor.prototype.isWireframe = function(isWireframe) {
 }
 
 //--------------- Path ---------------------//
+var MAX_POINTS = 1000;
 var Path = function(parentObj) {
   this.parentObj = parentObj;
   this.curve = new THREE.SplineCurve();
+  this.geometry = new THREE.BufferGeometry();
+  this.positions = new Float32Array(MAX_POINTS * 3);
+  this.geometry.addAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+
+  this.drawCount = 2; // draw the first 2 points, only
+  this.geometry.setDrawRange(0, this.drawCount);
+
+  this.material =  new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 2});
+
+  this.mesh = new THREE.Line(this.geometry, this.material);
 }
 
+var pointNbr = 0;
+var index = 0;
 Path.prototype.update = function() {
-  // TODO the following creates a point for every frame --> optimize?
+  // push coordinates of bike into curve
   this.curve.points.push(this.parentObj.getWorldPosition2());
+
+  // set draw range
+  this.drawCount = this.curve.points.length;
+  this.mesh.geometry.setDrawRange(0, this.drawCount);
+
+  console.log(this.drawCount);
+
+  // add curve points to the buffer geometry
+  this.mesh.geometry.attributes.position.array[index++] = this.curve.points[pointNbr].x;
+  this.mesh.geometry.attributes.position.array[index++] = this.curve.points[pointNbr++].y;
+  this.mesh.geometry.attributes.position.array[index++] = 0;
 }
 
   return {
