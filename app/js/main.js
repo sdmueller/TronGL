@@ -5,14 +5,7 @@
 requirejs.config({
   // By default load any module IDs from js/lib
   baseUrl: 'js',
-  paths: {},
-  shim: {
-    // load deps for modules w/o AMD
-    "lib/threeOrbitControls": {
-      deps: ["lib/three.min"]
-      //exports:"THREE.OrbitControls"
-    }
-  }
+  paths: {}
 });
 
 requirejs(["app/game"], function(game) {

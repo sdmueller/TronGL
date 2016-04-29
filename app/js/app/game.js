@@ -5,8 +5,9 @@
 define(["app/cameraHelper",
         "app/props",
         "lib/keyboard",
-        "lib/three.min"], function(cameraHelper, props, keyboard, three) {
-  var renderer, scene, camera, cube, keyPressed, delta, path;
+        "lib/three.min",
+        "lib/stats.min"], function(cameraHelper, props, keyboard, three, stats) {
+  var renderer, scene, camera, cube, keyPressed, delta, path, stats;
   var clock = new THREE.Clock();
   var time = 0;
   var update = false;
@@ -55,6 +56,15 @@ define(["app/cameraHelper",
     // add path object
     path = new props.Path(bikeCube);
     scene.add(path.mesh);
+
+    // add 2nd cube/path
+    player2 = new props.Bike(0.5, 3, 1);
+    scene.add(player2.mesh);
+    path2 = new props.Path(player2);
+    scene.add(path2.mesh);
+
+    stats = new Stats();
+    c.appendChild(stats.dom);
   }
 
   function draw() {
@@ -67,10 +77,14 @@ define(["app/cameraHelper",
 
     updateCamera();
 
-    path.mesh.geometry.attributes.position.needsUpdate = true // required after the first render
+    // updateRange used: http://stackoverflow.com/questions/17410761/how-to-quickly-update-a-large-buffergeometry
+    path.mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
+    path2.mesh.geometry.attributes.position.needsUpdate = true;
 
     // draw THREE.JS scene
     renderer.render(scene, camera.cam);
+
+    stats.update();
   }
 
   function handleInput() {
@@ -94,8 +108,23 @@ define(["app/cameraHelper",
         if(update)
           path.update();
     }
+    if(Key.isDown(Key.LEFT)) {
+        player2.rotate("left", delta);
+    }
+    if(Key.isDown(Key.RIGHT)) {
+        player2.rotate("right", delta);
+    }
+    if(Key.isDown(Key.UP)) {
+        player2.translate(0, 1, 0);
+        if(update)
+          path2.update();
+    }
+    if(Key.isDown(Key.DOWN)) {
+        player2.translate(0, -1, 0);
+        if(update)
+          path2.update();
+    }
     update = false;
-
   }
 
   function updateCamera() {

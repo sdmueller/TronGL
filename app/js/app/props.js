@@ -61,24 +61,21 @@ Floor.prototype.isWireframe = function(isWireframe) {
 }
 
 //--------------- Path ---------------------//
-var MAX_POINTS = 1000;
+var MAX_POINTS = 500;
 var Path = function(parentObj) {
   this.parentObj = parentObj;
+  this.pointNbr = 0;
+  this.arrayIndex = 0;
   this.curve = new THREE.SplineCurve();
   this.geometry = new THREE.BufferGeometry();
-  this.positions = new Float32Array(MAX_POINTS * 3);
-  this.geometry.addAttribute('position', new THREE.BufferAttribute(this.positions, 3));
-
-  this.drawCount = 2; // draw the first 2 points, only
-  this.geometry.setDrawRange(0, this.drawCount);
+  this.positions = new Float32Array(MAX_POINTS * 2); // generates warning as it expects 3 points/vertex, with 3 points (x,y,z) somethings up with the bounding box, using only x,y for now as z is always 0
+  this.geometry.addAttribute('position', new THREE.BufferAttribute(this.positions, 2));
 
   this.material =  new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 2});
 
   this.mesh = new THREE.Line(this.geometry, this.material);
 }
 
-var pointNbr = 0;
-var index = 0;
 Path.prototype.update = function() {
   // push coordinates of bike into curve
   this.curve.points.push(this.parentObj.getWorldPosition2());
@@ -90,9 +87,12 @@ Path.prototype.update = function() {
   console.log(this.drawCount);
 
   // add curve points to the buffer geometry
-  this.mesh.geometry.attributes.position.array[index++] = this.curve.points[pointNbr].x;
-  this.mesh.geometry.attributes.position.array[index++] = this.curve.points[pointNbr++].y;
-  this.mesh.geometry.attributes.position.array[index++] = 0;
+  this.mesh.geometry.attributes.position.array[this.arrayIndex++] = this.curve.points[this.pointNbr].x;
+  this.mesh.geometry.attributes.position.array[this.arrayIndex++] = this.curve.points[this.pointNbr].y;
+  //this.mesh.geometry.attributes.position.array[index++] = 0;
+
+  // set updateRange
+  this.mesh.geometry.attributes.position.updateRange = {offset: this.pointNbr++, count: 1};
 }
 
   return {
